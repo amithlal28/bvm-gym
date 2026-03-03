@@ -1,0 +1,25 @@
+# AppData and System files escaping the local project context
+AppData/
+*/AppData/*
+.gemini/
+.android/
+.gradle/
+.config/
+
+# Standard Expo ignores
+.expo/
+dist/
+npm-debug.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+
+# Node modules
+node_modules/
+
+# Mac/Windows specific
+.DS_Store
+Thumbs.db
