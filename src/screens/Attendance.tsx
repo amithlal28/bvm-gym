@@ -46,33 +46,18 @@ const AttendanceScreen = () => {
         if (isSun(d)) d = subDays(d, 1);
         setDate(d);
 
-        // ONLY act if there's an explicit tab parameter passed.
-        // If no parameter, we keep the previous state (which defaults to Gym on mount)
+        // Determine target from route params or keep current if valid
+        let targetTab = mainTab;
+        let targetBatch = selectedBatch;
+
         if (route.params?.tab) {
-            const targetTab = route.params.tab;
-            let targetBatch = GYM_DEFAULT_SESSION_ID;
-
-            if (targetTab === 'Badminton') {
-                if (sessions.length > 0) {
-                    targetBatch = sessions[0].id || '';
-                } else {
-                    targetBatch = ''; // Force it to empty so loadAll selects the first badminton batch
-                }
-            }
-
-            setMainTab(targetTab);
-            setSelectedBatch(targetBatch);
-
-            // Clear the params so subsequent focus events (without params) don't trigger this again
+            targetTab = route.params.tab;
+            targetBatch = targetTab === 'Gym' ? GYM_DEFAULT_SESSION_ID : ''; // Reset batch if switching to Badminton
             navigation.setParams({ tab: undefined } as any);
-
-            // Only trigger loadAll if we are changing something or it's a fresh focus with params
-            loadAll(d, targetTab, targetBatch);
-        } else if (allUsers.length === 0) {
-            // Initial load if no params and no data yet
-            loadAll(d, mainTab, selectedBatch);
         }
 
+        // Always reload data on focus to prevent state mixups
+        loadAll(d, targetTab, targetBatch);
         runAutoSuspendCheck();
     }, [route.params?.tab]));
 
@@ -95,17 +80,25 @@ const AttendanceScreen = () => {
             const [users, batches, susps] = await Promise.all([
                 getActiveUsers(), getBadmintonSessions(), getSuspensionsForDate(ds)
             ]);
-            setAllUsers(users);
+
             setSessions(batches);
             setSuspensions(susps.map(s => s.sessionId));
+            setAllUsers(users); // Set users last to avoid partial render with old sessions
 
-            let finalBatch = targetBatch || selectedBatch;
-            if (activeTab === 'Badminton' && batches.length > 0 && !batches.find(b => b.id === finalBatch)) {
-                finalBatch = batches[0].id || '';
+            let finalBatch = targetBatch !== undefined ? targetBatch : selectedBatch;
+
+            // Validate batch for active tab
+            if (activeTab === 'Badminton') {
+                const isValid = batches.some(b => b.id === finalBatch);
+                if (!isValid) finalBatch = batches.length > 0 ? batches[0].id || '' : '';
+            } else {
+                finalBatch = GYM_DEFAULT_SESSION_ID;
             }
-            if (activeTab === 'Gym') finalBatch = GYM_DEFAULT_SESSION_ID;
 
+            setMainTab(activeTab);
             setSelectedBatch(finalBatch);
+
+            // Pass the fresh data immediately 
             await loadAttendance(d, finalBatch, users);
         } catch (e: any) { Alert.alert('Error', e.message); }
         finally { setLoading(false); }
