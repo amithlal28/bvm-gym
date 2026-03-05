@@ -37,6 +37,7 @@ const AttendanceScreen = () => {
     const [showPicker, setShowPicker] = useState(false);
     const [autoSuspendedModal, setAutoSuspendedModal] = useState(false);
     const [autoSuspendedList, setAutoSuspendedList] = useState<{ name: string; activity: string }[]>([]);
+    const [unsuspendModal, setUnsuspendModal] = useState(false);
 
     const isSun = (d: Date) => d.getDay() === 0;
 
@@ -302,12 +303,7 @@ const AttendanceScreen = () => {
 
             {/* Suspended Banner (batch suspension) */}
             {isSuspended && (
-                <TouchableOpacity style={styles.suspendBanner} onPress={async () => {
-                    Alert.alert('Remove Batch Suspension', 'Mark this batch as active for this day?', [
-                        { text: 'Cancel', style: 'cancel' },
-                        { text: 'Yes', onPress: handleUnsuspend },
-                    ]);
-                }} activeOpacity={0.8}>
+                <TouchableOpacity style={styles.suspendBanner} onPress={() => setUnsuspendModal(true)} activeOpacity={0.8}>
                     <AlertTriangle size={16} color="#fff" strokeWidth={2.5} />
                     <Text style={styles.suspendBannerText}>This batch is suspended for today — tap to remove</Text>
                 </TouchableOpacity>
@@ -398,6 +394,20 @@ const AttendanceScreen = () => {
                 actions={[
                     { label: 'Cancel', onPress: () => setSuspendModal(false), variant: 'cancel' },
                     { label: 'Suspend Batch', onPress: handleSuspend, variant: 'danger' },
+                ]}
+            />
+
+            {/* Batch Unsuspend Modal (modern) */}
+            <AppModal
+                visible={unsuspendModal}
+                onClose={() => setUnsuspendModal(false)}
+                title="Remove Batch Suspension?"
+                subtitle={`Reactivate this batch and resume attendance tracking for ${format(date, 'MMM d')}.`}
+                icon="⚡"
+                variant="success"
+                actions={[
+                    { label: 'Cancel', onPress: () => setUnsuspendModal(false), variant: 'cancel' },
+                    { label: 'Unsuspend Batch', onPress: async () => { await handleUnsuspend(); setUnsuspendModal(false); }, variant: 'success' },
                 ]}
             />
 
