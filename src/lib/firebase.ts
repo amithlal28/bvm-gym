@@ -3,13 +3,13 @@ import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
-    apiKey: "AIzaSyBHE-BSWdPPCXlG5S8_4Lp3SFpD4Pvs0Ns",
-    authDomain: "bvm-gym.firebaseapp.com",
-    projectId: "bvm-gym",
-    storageBucket: "bvm-gym.firebasestorage.app",
-    messagingSenderId: "460544109184",
-    appId: "1:460544109184:web:d22c3927083609a8f31465",
-    measurementId: "G-VWSLZHPTRH"
+    apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
+    authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+    storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
+    measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
