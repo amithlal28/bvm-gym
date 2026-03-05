@@ -46,6 +46,7 @@ const AttendanceScreen = () => {
         if (isSun(d)) d = subDays(d, 1);
         setDate(d);
 
+        // Default to Gym unless Badminton is explicitly requested
         let targetTab: 'Gym' | 'Badminton' = 'Gym';
         let targetBatch = GYM_DEFAULT_SESSION_ID;
 
@@ -55,17 +56,20 @@ const AttendanceScreen = () => {
                 targetBatch = GYM_DEFAULT_SESSION_ID;
             } else if (sessions.length > 0) {
                 targetBatch = sessions[0].id || '';
+            } else {
+                // If we don't have sessions yet, loadAll will figure it out
+                targetBatch = GYM_DEFAULT_SESSION_ID;
             }
+            // Clear params AFTER deciding the target
+            navigation.setParams({ tab: undefined } as any);
         }
 
         setMainTab(targetTab);
         setSelectedBatch(targetBatch);
 
-        navigation.setParams({ tab: undefined } as any);
-
         loadAll(d, targetTab, targetBatch);
         runAutoSuspendCheck();
-    }, [route.params?.tab, sessions.length]));
+    }, [route.params?.tab]));
 
     const runAutoSuspendCheck = async () => {
         try {
