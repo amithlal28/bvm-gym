@@ -46,16 +46,26 @@ const AttendanceScreen = () => {
         if (isSun(d)) d = subDays(d, 1);
         setDate(d);
 
-        let targetTab = mainTab;
-        if (route.params?.tab && route.params.tab !== mainTab) {
+        let targetTab: 'Gym' | 'Badminton' = 'Gym';
+        let targetBatch = GYM_DEFAULT_SESSION_ID;
+
+        if (route.params?.tab) {
             targetTab = route.params.tab;
-            setMainTab(targetTab);
-            navigation.setParams({ tab: undefined } as any);
+            if (targetTab === 'Gym') {
+                targetBatch = GYM_DEFAULT_SESSION_ID;
+            } else if (sessions.length > 0) {
+                targetBatch = sessions[0].id || '';
+            }
         }
 
-        loadAll(d, targetTab);
+        setMainTab(targetTab);
+        setSelectedBatch(targetBatch);
+
+        navigation.setParams({ tab: undefined } as any);
+
+        loadAll(d, targetTab, targetBatch);
         runAutoSuspendCheck();
-    }, [route.params?.tab]));
+    }, [route.params?.tab, sessions.length]));
 
     const runAutoSuspendCheck = async () => {
         try {
@@ -67,7 +77,7 @@ const AttendanceScreen = () => {
         } catch (_) { /* Silent fail for auto-suspend check */ }
     };
 
-    const loadAll = async (d: Date, targetTab?: 'Gym' | 'Badminton') => {
+    const loadAll = async (d: Date, targetTab?: 'Gym' | 'Badminton', targetBatch?: string) => {
         const activeTab = targetTab || mainTab;
         if (isSun(d)) { setLoading(false); return; }
         try {
@@ -79,13 +89,15 @@ const AttendanceScreen = () => {
             setAllUsers(users);
             setSessions(batches);
             setSuspensions(susps.map(s => s.sessionId));
-            let finalBatch = selectedBatch;
-            if (batches.length > 0 && !batches.find(b => b.id === selectedBatch) && activeTab === 'Badminton') {
+
+            let finalBatch = targetBatch || selectedBatch;
+            if (activeTab === 'Badminton' && batches.length > 0 && !batches.find(b => b.id === finalBatch)) {
                 finalBatch = batches[0].id || '';
-                setSelectedBatch(finalBatch);
             }
-            const sid = activeTab === 'Gym' ? GYM_DEFAULT_SESSION_ID : finalBatch;
-            await loadAttendance(d, sid, users);
+            if (activeTab === 'Gym') finalBatch = GYM_DEFAULT_SESSION_ID;
+
+            setSelectedBatch(finalBatch);
+            await loadAttendance(d, finalBatch, users);
         } catch (e: any) { Alert.alert('Error', e.message); }
         finally { setLoading(false); }
     };

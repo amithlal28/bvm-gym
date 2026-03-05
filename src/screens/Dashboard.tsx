@@ -162,18 +162,28 @@ export default function DashboardScreen() {
                     </View>
 
                     <View style={styles.ringsContainer}>
-                        <ActivityRing
-                            percentage={(stats.gymPresent / (stats.gym || 1)) * 100}
-                            color={colors.green}
-                            icon={Activity}
-                            size={100}
-                        />
-                        <ActivityRing
-                            percentage={(stats.badmintonPresent / (stats.badminton || 1)) * 100}
-                            color={colors.orange}
-                            icon={Users}
-                            size={100}
-                        />
+                        <TouchableOpacity
+                            onPress={() => navigation.navigate('MainTabs' as any, { screen: 'Attend', params: { tab: 'Gym' } })}
+                            activeOpacity={0.7}
+                        >
+                            <ActivityRing
+                                percentage={(stats.gymPresent / (stats.gym || 1)) * 100}
+                                color={colors.green}
+                                icon={Activity}
+                                size={100}
+                            />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={() => navigation.navigate('MainTabs' as any, { screen: 'Attend', params: { tab: 'Badminton' } })}
+                            activeOpacity={0.7}
+                        >
+                            <ActivityRing
+                                percentage={(stats.badmintonPresent / (stats.badminton || 1)) * 100}
+                                color={colors.orange}
+                                icon={Users}
+                                size={100}
+                            />
+                        </TouchableOpacity>
                     </View>
                 </View>
             </LinearGradient>
