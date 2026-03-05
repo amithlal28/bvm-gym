@@ -12,6 +12,8 @@ import {
     CreditCard, Settings2, Calendar, TrendingUp, Clock,
     LayoutGrid, Search, Bell, FileSpreadsheet
 } from 'lucide-react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming, interpolateColor } from 'react-native-reanimated';
+import { Pressable } from 'react-native';
 import { getActiveUsers, getAttendanceByDate, setGymSessionDefault, GYM_DEFAULT_SESSION_ID } from '../lib/services';
 import { format } from 'date-fns';
 import { RootStackParamList } from '../types/navigation';
@@ -64,6 +66,40 @@ const innerStyles = StyleSheet.create({
     ringContent: { position: 'absolute', alignItems: 'center', justifyContent: 'center', top: 0, left: 0, right: 0, bottom: 0 },
     ringPercentage: { fontSize: 18, fontWeight: '900', marginBottom: -2 }
 });
+
+// Reusable Animated Card for Premium Interactions
+const AnimatedCard = ({ children, onPress, style }: { children: React.ReactNode; onPress: () => void; style?: any }) => {
+    const scale = useSharedValue(1);
+    const opacity = useSharedValue(1);
+
+    const animatedStyle = useAnimatedStyle(() => ({
+        transform: [{ scale: scale.value }],
+        opacity: opacity.value,
+    }));
+
+    const handlePressIn = () => {
+        scale.value = withSpring(0.97, { damping: 15, stiffness: 200 });
+        opacity.value = withTiming(0.9, { duration: 150 });
+    };
+
+    const handlePressOut = () => {
+        scale.value = withSpring(1, { damping: 15, stiffness: 200 });
+        opacity.value = withTiming(1, { duration: 150 });
+    };
+
+    return (
+        <Pressable
+            onPress={onPress}
+            onPressIn={handlePressIn}
+            onPressOut={handlePressOut}
+            style={style}
+        >
+            <Animated.View style={[animatedStyle, { flex: style?.flex === 1 ? 1 : undefined }]}>
+                {children}
+            </Animated.View>
+        </Pressable>
+    );
+};
 
 export default function DashboardScreen() {
     const navigation = useNavigation<Nav>();
@@ -133,12 +169,12 @@ export default function DashboardScreen() {
                         <Text style={styles.brandName}>BVM <Text style={{ color: colors.orange }}>GYM</Text></Text>
                     </View>
                     <View style={styles.topActions}>
-                        <TouchableOpacity style={styles.iconBtn} onPress={() => navigation.navigate('Settings')}>
+                        <AnimatedCard style={styles.iconBtn} onPress={() => navigation.navigate('Settings')}>
                             <Search size={22} color="rgba(255,255,255,0.7)" />
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.settingsBtn} onPress={() => navigation.navigate('Settings')}>
+                        </AnimatedCard>
+                        <AnimatedCard style={styles.settingsBtn} onPress={() => navigation.navigate('Settings')}>
                             <Settings2 size={22} color="#fff" />
-                        </TouchableOpacity>
+                        </AnimatedCard>
                     </View>
                 </View>
 
@@ -162,9 +198,8 @@ export default function DashboardScreen() {
                     </View>
 
                     <View style={styles.ringsContainer}>
-                        <TouchableOpacity
+                        <AnimatedCard
                             onPress={() => navigation.navigate('MainTabs' as any, { screen: 'Attend', params: { tab: 'Gym' } })}
-                            activeOpacity={0.7}
                         >
                             <ActivityRing
                                 percentage={(stats.gymPresent / (stats.gym || 1)) * 100}
@@ -172,10 +207,9 @@ export default function DashboardScreen() {
                                 icon={Activity}
                                 size={100}
                             />
-                        </TouchableOpacity>
-                        <TouchableOpacity
+                        </AnimatedCard>
+                        <AnimatedCard
                             onPress={() => navigation.navigate('MainTabs' as any, { screen: 'Attend', params: { tab: 'Badminton' } })}
-                            activeOpacity={0.7}
                         >
                             <ActivityRing
                                 percentage={(stats.badmintonPresent / (stats.badminton || 1)) * 100}
@@ -183,7 +217,7 @@ export default function DashboardScreen() {
                                 icon={Users}
                                 size={100}
                             />
-                        </TouchableOpacity>
+                        </AnimatedCard>
                     </View>
                 </View>
             </LinearGradient>
@@ -202,10 +236,9 @@ export default function DashboardScreen() {
                     </View>
 
                     <View style={styles.actionGrid}>
-                        <TouchableOpacity
+                        <AnimatedCard
                             style={styles.actionCard}
                             onPress={() => navigation.navigate('MainTabs', { screen: 'Members', params: { tab: 'reg' } } as any)}
-                            activeOpacity={0.7}
                         >
                             <LinearGradient colors={cardColors} style={styles.actionGradient}>
                                 <View style={[styles.actionIconBox, { backgroundColor: '#10B98115' }]}>
@@ -213,12 +246,11 @@ export default function DashboardScreen() {
                                 </View>
                                 <Text style={[styles.actionText, { color: colors.text }]}>Member{"\n"}Registration</Text>
                             </LinearGradient>
-                        </TouchableOpacity>
+                        </AnimatedCard>
 
-                        <TouchableOpacity
+                        <AnimatedCard
                             style={styles.actionCard}
                             onPress={() => navigation.navigate('MainTabs' as any, { screen: 'Billing' })}
-                            activeOpacity={0.7}
                         >
                             <LinearGradient colors={cardColors} style={styles.actionGradient}>
                                 <View style={[styles.actionIconBox, { backgroundColor: '#FC801915' }]}>
@@ -226,13 +258,12 @@ export default function DashboardScreen() {
                                 </View>
                                 <Text style={[styles.actionText, { color: colors.text }]}>Fee{"\n"}Collection</Text>
                             </LinearGradient>
-                        </TouchableOpacity>
+                        </AnimatedCard>
                     </View>
 
-                    <TouchableOpacity
+                    <AnimatedCard
                         style={[styles.wideActionCard, { marginBottom: 16 }]}
                         onPress={() => navigation.navigate('MonthlyAttendance')}
-                        activeOpacity={0.7}
                     >
                         <LinearGradient colors={cardColors} style={styles.wideGradient}>
                             <View style={styles.wideContent}>
@@ -248,12 +279,11 @@ export default function DashboardScreen() {
                                 <ChevronRight size={18} color={colors.sub} opacity={0.4} />
                             </View>
                         </LinearGradient>
-                    </TouchableOpacity>
+                    </AnimatedCard>
 
-                    <TouchableOpacity
+                    <AnimatedCard
                         style={styles.wideActionCard}
                         onPress={() => navigation.navigate('Reports')}
-                        activeOpacity={0.7}
                     >
                         <LinearGradient colors={cardColors} style={styles.wideGradient}>
                             <View style={styles.wideContent}>
@@ -269,7 +299,7 @@ export default function DashboardScreen() {
                                 <ChevronRight size={18} color={colors.sub} opacity={0.4} />
                             </View>
                         </LinearGradient>
-                    </TouchableOpacity>
+                    </AnimatedCard>
                 </View>
 
                 {/* Quick Presence Access */}
@@ -280,7 +310,7 @@ export default function DashboardScreen() {
                     </View>
 
                     <View style={styles.presenceGrid}>
-                        <TouchableOpacity
+                        <AnimatedCard
                             style={{ flex: 1 }}
                             onPress={() => navigation.navigate('MainTabs' as any, { screen: 'Attend', params: { tab: 'Gym' } })}
                         >
@@ -290,9 +320,9 @@ export default function DashboardScreen() {
                                 <Text style={styles.presenceLabel}>Gym Members</Text>
                                 <View style={styles.miniBar}><View style={[styles.miniFill, { width: `${(stats.gymPresent / 50) * 100}%` }]} /></View>
                             </LinearGradient>
-                        </TouchableOpacity>
+                        </AnimatedCard>
 
-                        <TouchableOpacity
+                        <AnimatedCard
                             style={{ flex: 1 }}
                             onPress={() => navigation.navigate('MainTabs' as any, { screen: 'Attend', params: { tab: 'Badminton' } })}
                         >
@@ -302,7 +332,7 @@ export default function DashboardScreen() {
                                 <Text style={styles.presenceLabel}>Court Players</Text>
                                 <View style={styles.miniBar}><View style={[styles.miniFill, { width: `${(stats.badmintonPresent / 20) * 100}%` }]} /></View>
                             </LinearGradient>
-                        </TouchableOpacity>
+                        </AnimatedCard>
                     </View>
                 </View>
 
