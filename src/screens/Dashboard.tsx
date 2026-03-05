@@ -1,7 +1,8 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import {
     View, Text, StyleSheet, TouchableOpacity, ScrollView,
-    ActivityIndicator, RefreshControl, StatusBar, Platform, Dimensions
+    ActivityIndicator, RefreshControl, StatusBar, Platform, Dimensions,
+    Image
 } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -164,7 +165,11 @@ export default function DashboardScreen() {
                 <View style={styles.topBar}>
                     <View style={styles.brand}>
                         <View style={styles.iconCircle}>
-                            <Zap size={20} color={colors.orange} fill={colors.orange} />
+                            <Image
+                                source={require('../../assets/icon.png')}
+                                style={{ width: 28, height: 28 }}
+                                resizeMode="contain"
+                            />
                         </View>
                         <Text style={styles.brandName}>BVM <Text style={{ color: colors.orange }}>GYM</Text></Text>
                     </View>
