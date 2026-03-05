@@ -46,28 +46,33 @@ const AttendanceScreen = () => {
         if (isSun(d)) d = subDays(d, 1);
         setDate(d);
 
-        // Default to Gym unless Badminton is explicitly requested
-        let targetTab: 'Gym' | 'Badminton' = 'Gym';
-        let targetBatch = GYM_DEFAULT_SESSION_ID;
-
+        // ONLY act if there's an explicit tab parameter passed.
+        // If no parameter, we keep the previous state (which defaults to Gym on mount)
         if (route.params?.tab) {
-            targetTab = route.params.tab;
-            if (targetTab === 'Gym') {
-                targetBatch = GYM_DEFAULT_SESSION_ID;
-            } else if (sessions.length > 0) {
-                targetBatch = sessions[0].id || '';
-            } else {
-                // If we don't have sessions yet, loadAll will figure it out
-                targetBatch = GYM_DEFAULT_SESSION_ID;
+            const targetTab = route.params.tab;
+            let targetBatch = GYM_DEFAULT_SESSION_ID;
+
+            if (targetTab === 'Badminton') {
+                if (sessions.length > 0) {
+                    targetBatch = sessions[0].id || '';
+                } else {
+                    targetBatch = ''; // Force it to empty so loadAll selects the first badminton batch
+                }
             }
-            // Clear params AFTER deciding the target
+
+            setMainTab(targetTab);
+            setSelectedBatch(targetBatch);
+
+            // Clear the params so subsequent focus events (without params) don't trigger this again
             navigation.setParams({ tab: undefined } as any);
+
+            // Only trigger loadAll if we are changing something or it's a fresh focus with params
+            loadAll(d, targetTab, targetBatch);
+        } else if (allUsers.length === 0) {
+            // Initial load if no params and no data yet
+            loadAll(d, mainTab, selectedBatch);
         }
 
-        setMainTab(targetTab);
-        setSelectedBatch(targetBatch);
-
-        loadAll(d, targetTab, targetBatch);
         runAutoSuspendCheck();
     }, [route.params?.tab]));
 
