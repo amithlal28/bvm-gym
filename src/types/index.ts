@@ -28,7 +28,12 @@ export interface User {
 
     // ── System ──
     createdAt: any;
+    dateJoined?: string; // YYYY-MM-DD
     status: UserStatus;
+
+    // ── Suspension ──
+    gymSuspendedAt?: string | null;       // ISO date string if Gym suspended, null/undefined if active
+    badmintonSuspendedAt?: string | null; // ISO date string if Badminton suspended, null/undefined if active
 }
 
 export interface Session {

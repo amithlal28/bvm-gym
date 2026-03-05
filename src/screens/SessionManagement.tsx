@@ -1,16 +1,19 @@
 import React, { useState, useCallback } from 'react';
 import {
     View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity,
-    Alert, ActivityIndicator, ScrollView, KeyboardAvoidingView, Platform, RefreshControl
+    Alert, ActivityIndicator, ScrollView, KeyboardAvoidingView, Platform, RefreshControl, StatusBar
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Plus, Trash2, CheckCircle2 } from 'lucide-react-native';
 import { Session } from '../types';
 import { getBadmintonSessions, createSession, deleteSession, setGymSessionDefault } from '../lib/services';
-
-const C = { orange: '#FC8019', bg: '#F6F6F6', card: '#FFFFFF', text: '#3D4152', sub: '#93959F', green: '#60B246', red: '#E23744', border: '#E9E9EB' };
+import { useTheme } from '../contexts/ThemeContext';
 
 const SessionManagementScreen = () => {
+    const insets = useSafeAreaInsets();
+    const safeTop = insets.top > 0 ? insets.top : Platform.OS === 'android' ? StatusBar.currentHeight || 24 : 0;
+    const { colors: C } = useTheme();
     const [sessions, setSessions] = useState<Session[]>([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -51,41 +54,46 @@ const SessionManagementScreen = () => {
     };
 
     return (
-        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-            <ScrollView style={styles.container} contentContainerStyle={styles.content} refreshControl={<RefreshControl refreshing={loading} onRefresh={load} colors={[C.orange]} />}>
+        <KeyboardAvoidingView style={{ flex: 1, backgroundColor: C.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+            <View style={{ paddingTop: safeTop, backgroundColor: C.card, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: C.border, paddingHorizontal: 16 }}>
+                <Text style={{ fontSize: 20, fontWeight: '800', color: C.text, marginTop: 10 }}>Sessions & Batches</Text>
+            </View>
+            <ScrollView style={{ flex: 1, backgroundColor: C.bg }} contentContainerStyle={{ padding: 16, paddingBottom: 60 }} refreshControl={<RefreshControl refreshing={loading} onRefresh={load} colors={[C.orange]} />}>
 
                 {/* Default Gym Batch */}
-                <View style={styles.gymCard}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, backgroundColor: '#F0FBF0', borderRadius: 16, padding: 18, marginBottom: 16, borderWidth: 1.5, borderColor: '#C8EFC8' }}>
                     <CheckCircle2 size={22} color={C.green} strokeWidth={2.5} />
                     <View style={{ flex: 1 }}>
-                        <Text style={styles.gymTitle}>General Gym Batch</Text>
-                        <Text style={styles.gymSub}>5:00 AM – 10:00 PM · Default · All Gym members</Text>
+                        <Text style={{ fontSize: 16, fontWeight: '700', color: '#2D6A2D', marginBottom: 2 }}>General Gym Batch</Text>
+                        <Text style={{ fontSize: 13, color: '#4CAF50', fontWeight: '500' }}>5:00 AM – 10:00 PM · Default · All Gym members</Text>
                     </View>
-                    <View style={styles.gymBadge}><Text style={styles.gymBadgeText}>Active</Text></View>
+                    <View style={{ backgroundColor: '#C8EFC8', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}>
+                        <Text style={{ color: '#2D6A2D', fontSize: 12, fontWeight: '700' }}>Active</Text>
+                    </View>
                 </View>
 
                 {/* Create Badminton Batch */}
-                <View style={styles.card}>
-                    <Text style={styles.cardTitle}>New Badminton Batch</Text>
-                    <TextInput style={styles.input} placeholder="Batch name  (e.g. Morning Pro)" placeholderTextColor={C.sub} value={name} onChangeText={setName} />
-                    <TextInput style={styles.input} placeholder="Timings  (e.g. 6:00 AM – 9:00 AM)" placeholderTextColor={C.sub} value={timings} onChangeText={setTimings} />
-                    <TouchableOpacity style={[styles.createBtn, saving && { opacity: 0.6 }]} onPress={handleCreate} disabled={saving} activeOpacity={0.8}>
-                        {saving ? <ActivityIndicator color="#fff" size="small" /> : <><Plus size={18} color="#fff" strokeWidth={3} /><Text style={styles.createBtnText}>Create Batch</Text></>}
+                <View style={{ backgroundColor: C.card, borderRadius: 16, padding: 18, marginBottom: 20, shadowColor: C.cardShadow, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 }}>
+                    <Text style={{ fontSize: 17, fontWeight: '800', color: C.text, marginBottom: 16 }}>New Badminton Batch</Text>
+                    <TextInput style={{ backgroundColor: C.inputBg, borderRadius: 12, padding: 15, fontSize: 16, color: C.text, marginBottom: 12, borderWidth: 1, borderColor: C.border }} placeholder="Batch name  (e.g. Morning Pro)" placeholderTextColor={C.sub} value={name} onChangeText={setName} />
+                    <TextInput style={{ backgroundColor: C.inputBg, borderRadius: 12, padding: 15, fontSize: 16, color: C.text, marginBottom: 12, borderWidth: 1, borderColor: C.border }} placeholder="Timings  (e.g. 6:00 AM – 9:00 AM)" placeholderTextColor={C.sub} value={timings} onChangeText={setTimings} />
+                    <TouchableOpacity style={{ flexDirection: 'row', backgroundColor: C.orange, borderRadius: 14, padding: 16, alignItems: 'center', justifyContent: 'center', gap: 8, opacity: saving ? 0.6 : 1 }} onPress={handleCreate} disabled={saving} activeOpacity={0.8}>
+                        {saving ? <ActivityIndicator color="#fff" size="small" /> : <><Plus size={18} color="#fff" strokeWidth={3} /><Text style={{ color: '#fff', fontWeight: '800', fontSize: 16 }}>Create Batch</Text></>}
                     </TouchableOpacity>
                 </View>
 
                 {/* List */}
-                <Text style={styles.listHeader}>Badminton Batches ({sessions.length})</Text>
+                <Text style={{ fontSize: 13, fontWeight: '800', color: C.sub, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>Badminton Batches ({sessions.length})</Text>
                 {loading ? <ActivityIndicator color={C.orange} style={{ marginTop: 20 }} /> :
-                    sessions.length === 0 ? <Text style={styles.empty}>No batches yet.</Text> :
+                    sessions.length === 0 ? <Text style={{ textAlign: 'center', color: C.sub, marginTop: 20, fontSize: 15 }}>No batches yet.</Text> :
                         sessions.map(s => (
-                            <View key={s.id} style={styles.batchRow}>
-                                <View style={[styles.batchDot, { backgroundColor: C.orange }]} />
+                            <View key={s.id} style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: C.card, borderRadius: 14, padding: 16, marginBottom: 10, shadowColor: C.cardShadow, shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 4, elevation: 1 }}>
+                                <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: C.orange, marginRight: 14 }} />
                                 <View style={{ flex: 1 }}>
-                                    <Text style={styles.batchName}>{s.name}</Text>
-                                    <Text style={styles.batchTime}>{s.timings}</Text>
+                                    <Text style={{ fontSize: 16, fontWeight: '700', color: C.text, marginBottom: 3 }}>{s.name}</Text>
+                                    <Text style={{ fontSize: 13, color: C.sub, fontWeight: '500' }}>{s.timings}</Text>
                                 </View>
-                                <TouchableOpacity style={styles.deleteBtn} onPress={() => s.id && handleDelete(s.id, s.name)}>
+                                <TouchableOpacity style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: '#FFF0F0', alignItems: 'center', justifyContent: 'center' }} onPress={() => s.id && handleDelete(s.id, s.name)}>
                                     <Trash2 size={18} color={C.red} />
                                 </TouchableOpacity>
                             </View>
@@ -95,27 +103,5 @@ const SessionManagementScreen = () => {
         </KeyboardAvoidingView>
     );
 };
-
-const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: C.bg },
-    content: { padding: 16, paddingBottom: 60 },
-    gymCard: { flexDirection: 'row', alignItems: 'center', gap: 14, backgroundColor: '#F0FBF0', borderRadius: 16, padding: 18, marginBottom: 16, borderWidth: 1.5, borderColor: '#C8EFC8' },
-    gymTitle: { fontSize: 16, fontWeight: '700', color: '#2D6A2D', marginBottom: 2 },
-    gymSub: { fontSize: 13, color: '#4CAF50', fontWeight: '500' },
-    gymBadge: { backgroundColor: '#C8EFC8', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 },
-    gymBadgeText: { color: '#2D6A2D', fontSize: 12, fontWeight: '700' },
-    card: { backgroundColor: C.card, borderRadius: 16, padding: 18, marginBottom: 20, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
-    cardTitle: { fontSize: 17, fontWeight: '800', color: C.text, marginBottom: 16 },
-    input: { backgroundColor: C.bg, borderRadius: 12, padding: 15, fontSize: 16, color: C.text, marginBottom: 12, borderWidth: 1, borderColor: C.border },
-    createBtn: { flexDirection: 'row', backgroundColor: C.orange, borderRadius: 14, padding: 16, alignItems: 'center', justifyContent: 'center', gap: 8 },
-    createBtnText: { color: '#fff', fontWeight: '800', fontSize: 16 },
-    listHeader: { fontSize: 13, fontWeight: '800', color: C.sub, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 },
-    batchRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: C.card, borderRadius: 14, padding: 16, marginBottom: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 4, elevation: 1 },
-    batchDot: { width: 8, height: 8, borderRadius: 4, marginRight: 14 },
-    batchName: { fontSize: 16, fontWeight: '700', color: C.text, marginBottom: 3 },
-    batchTime: { fontSize: 13, color: C.sub, fontWeight: '500' },
-    deleteBtn: { width: 40, height: 40, borderRadius: 12, backgroundColor: '#FFF0F0', alignItems: 'center', justifyContent: 'center' },
-    empty: { textAlign: 'center', color: C.sub, marginTop: 20, fontSize: 15 },
-});
 
 export default SessionManagementScreen;
