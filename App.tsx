@@ -71,7 +71,7 @@ function MainTabs() {
                     elevation: 20,
                     shadowColor: '#000',
                     shadowOffset: { width: 0, height: -4 },
-                    shadowOpacity: isDark ? 0.3 : 0.06,
+                    shadowOpacity: isDark ? 0.6 : 0.06,
                     shadowRadius: 12,
                 },
                 tabBarShowLabel: false,

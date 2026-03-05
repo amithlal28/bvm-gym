@@ -149,8 +149,8 @@ export default function DashboardScreen() {
 
     const styles = useMemo(() => makeStyles(colors, isDark), [colors, isDark]);
 
-    // Cards Color in Dark Mode
-    const cardColors: [string, string, ...string[]] = isDark ? ['#0F172A', '#1E293B'] : ['#f8fafc', '#f1f5f9'];
+    // Cards Color in Dark Mode - Increased brightness for better contrast on true black
+    const cardColors: [string, string, ...string[]] = isDark ? ['#121214', '#1C1C1E'] : ['#F8FAFC', '#F1F5F9'];
 
     return (
         <View style={styles.container}>
@@ -158,7 +158,7 @@ export default function DashboardScreen() {
 
             {/* Immersive Header (Fixed at top) */}
             <LinearGradient
-                colors={isDark ? ['#020617', '#0F172A', '#0F172A'] : ['#0F172A', '#1E293B', '#111827']}
+                colors={isDark ? ['#000000', '#050505', '#080808'] : ['#0F172A', '#1E293B', '#111827']}
                 style={[styles.header, { paddingTop: safeTop + 16, zIndex: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: isDark ? 0.3 : 0.1, shadowRadius: 20, elevation: 15 }]}
             >
                 {/* Top Bar */}
@@ -348,7 +348,7 @@ export default function DashboardScreen() {
 }
 
 const makeStyles = (colors: ThemeColors, isDark: boolean) => StyleSheet.create({
-    container: { flex: 1, backgroundColor: isDark ? '#020617' : '#F8FAFC' },
+    container: { flex: 1, backgroundColor: colors.bg },
     header: { paddingHorizontal: 22, borderBottomLeftRadius: 44, borderBottomRightRadius: 44, paddingBottom: 40 },
     topBar: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 25 },
     brand: { flexDirection: 'row', alignItems: 'center', gap: 10 },
@@ -377,13 +377,13 @@ const makeStyles = (colors: ThemeColors, isDark: boolean) => StyleSheet.create({
     dateSmall: { fontSize: 13, color: colors.sub, fontWeight: '700' },
 
     actionGrid: { flexDirection: 'row', gap: 16, marginBottom: 16 },
-    actionCard: { flex: 1, height: 180, borderRadius: 32, overflow: 'hidden', shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.05, shadowRadius: 20, elevation: 4 },
-    actionGradient: { flex: 1, padding: 24, justifyContent: 'space-between', borderWidth: 0.5, borderColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)' },
+    actionCard: { flex: 1, height: 180, borderRadius: 32, overflow: 'hidden', shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: isDark ? 0.4 : 0.05, shadowRadius: 20, elevation: 4 },
+    actionGradient: { flex: 1, padding: 24, justifyContent: 'space-between', borderWidth: 1, borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.02)' },
     actionIconBox: { width: 56, height: 56, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
     actionText: { fontSize: 16, fontWeight: '900', letterSpacing: -0.3, lineHeight: 22 },
 
-    wideActionCard: { borderRadius: 32, overflow: 'hidden', shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.05, shadowRadius: 20, elevation: 4 },
-    wideGradient: { padding: 24, borderWidth: 0.5, borderColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)' },
+    wideActionCard: { borderRadius: 32, overflow: 'hidden', shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: isDark ? 0.4 : 0.05, shadowRadius: 20, elevation: 4 },
+    wideGradient: { padding: 24, borderWidth: 1, borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.02)' },
     wideContent: { flexDirection: 'row', alignItems: 'center' },
     actionTitle: { fontSize: 18, fontWeight: '900', letterSpacing: -0.2 },
     actionSub: { color: colors.sub, fontSize: 13, fontWeight: '600', marginTop: 2 },

@@ -48,11 +48,11 @@ const LIGHT: ThemeColors = {
 };
 
 const DARK: ThemeColors = {
-    bg: '#0F0F11',
-    card: '#1C1C1E',
-    text: '#F2F2F7',
-    sub: '#8E8E93',
-    border: '#2C2C2E',
+    bg: '#000000',
+    card: '#121214',
+    text: '#FFFFFF',
+    sub: '#94949E',
+    border: '#252528',
     orange: '#FF9F43',
     green: '#30D158',
     red: '#FF453A',
@@ -60,13 +60,13 @@ const DARK: ThemeColors = {
     gold: '#FFD60A',
     blue: '#0A84FF',
     amber: '#FFD60A',
-    inputBg: '#2C2C2E',
-    modalOverlay: 'rgba(0,0,0,0.7)',
-    headerBg: '#1C1C1E',
-    tabBg: '#1C1C1E',
-    switchBg: '#3A3A3C',
+    inputBg: '#1C1C1E',
+    modalOverlay: 'rgba(0,0,0,0.85)',
+    headerBg: '#080808',
+    tabBg: '#080808',
+    switchBg: '#2C2C2E',
     cardShadow: '#000000',
-    pillBg: '#2C2C2E',
+    pillBg: '#1C1C1E',
 };
 
 interface ThemeContextType {
